@@ -1,0 +1,9 @@
+[submodule "code/core"]
+	path = code/core
+	url = git@github.com:farcrycore/core.git
+[submodule "code/plugins/farcrycms"]
+	path = code/plugins/farcrycms
+	url = git@github.com:farcrycore/plugin-farcrycms.git
+[submodule "code/projects/chelsea"]
+	path = code/projects/chelsea
+	url = git@github.com:farcrycore/project-chelsea.git
