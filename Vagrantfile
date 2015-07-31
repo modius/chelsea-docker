@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Launch solo-dev containers; using local mysql
   # - vagrant up mysql chelsea
   ##################################################
-  config.vm.define "mysql", autostart: false do |mysql|
+  config.vm.define "mysql", autostart: true do |mysql|
     mysql.vm.provider "docker" do |docker|
       docker.name = "mysql"
       # Notes; https://registry.hub.docker.com/u/tutum/mysql/
@@ -34,7 +34,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       docker.env = {
         MYSQL_USER: "vagrant",
         MYSQL_PASS: "vagrant",
-        STARTUP_SQL: "/vagrant/config/mysql/gpml.sql"
+        STARTUP_SQL: "/vagrant/config/mysql/chelsea.sql"
       }
       docker.ports = %w(3306:3306)
       #docker.expose = ["3306"]
@@ -43,14 +43,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  config.vm.define "chelsea", autostart: false do |solo|
+  config.vm.define "chelsea", autostart: true do |solo|
     solo.vm.provider "docker" do |docker|
       docker.name = "chelsea"
       docker.build_dir = "."
+      docker.env = {
+        FARCRY_DSN: "chelsea",
+        FARCRY_DSN_CLASS: "org.gjt.mm.mysql.Driver",
+        FARCRY_DSN_CONNECTIONSTRING: "jdbc:mysql://192.168.33.9:3306/chelsea?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useLegacyDatetimeCode=true",
+        FARCRY_DSN_USERNAME: "vagrant",
+        FARCRY_DSN_PASSWORD: "vagrant"
+      }
       # local development code, lucee config & logs
       docker.volumes = [
         "/vagrant/code:/var/www/farcry",
-        "/vagrant/config/lucee/solo-lucee-web.xml.cfm:/opt/lucee/web/lucee-web.xml.cfm",
+        "/vagrant/config/lucee/lucee-web.xml.cfm:/opt/lucee/web/lucee-web.xml.cfm",
         "/vagrant/logs/lucee:/opt/lucee/web/logs",
         "/vagrant/logs/nginx:/var/log/nginx",
         "/vagrant/logs/supervisor:/var/log/supervisor",
