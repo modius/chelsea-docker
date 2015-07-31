@@ -1,0 +1,7 @@
+chelsea:
+  image: 'daemonite/chelsea:latest'
+  environment:
+    - 'COOKIE=SRV insert indirect nocache'
+    - EXCLUDE_PORTS=8080
+    - VIRTUAL_HOST=chelsea.modius.io
+  target_num_containers: 2
