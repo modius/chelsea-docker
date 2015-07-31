@@ -49,8 +49,41 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       docker.build_dir = "."
       docker.env = {
         FARCRY_DSN: "chelsea",
+        FARCRY_DBTYPE: "mysql",
         FARCRY_DSN_CLASS: "org.gjt.mm.mysql.Driver",
         FARCRY_DSN_CONNECTIONSTRING: "jdbc:mysql://192.168.33.9:3306/chelsea?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useLegacyDatetimeCode=true",
+        FARCRY_DSN_USERNAME: "vagrant",
+        FARCRY_DSN_PASSWORD: "vagrant"
+      }
+      # local development code, lucee config & logs
+      docker.volumes = [
+        "/vagrant/code:/var/www/farcry",
+        "/vagrant/config/lucee/lucee-web.xml.cfm:/opt/lucee/web/lucee-web.xml.cfm",
+        "/vagrant/logs/lucee:/opt/lucee/web/logs",
+        "/vagrant/logs/nginx:/var/log/nginx",
+        "/vagrant/logs/supervisor:/var/log/supervisor",
+        "/vagrant/logs/tomcat:/usr/local/tomcat/logs"
+        ]
+      #docker.link("mysql:db")
+      docker.ports = %w(8009:80)
+      docker.vagrant_machine = "dockerhost"
+      docker.vagrant_vagrantfile = __FILE__
+    end
+  end
+
+  ##################################################
+  # Launch solo-dev containers; using embedded H2
+  # - vagrant up chelseah2
+  ##################################################
+  config.vm.define "chelseah2", autostart: true do |solo|
+    solo.vm.provider "docker" do |docker|
+      docker.name = "chelseah2"
+      docker.build_dir = "."
+      docker.env = {
+        FARCRY_DSN: "chelsea",
+        FARCRY_DBTYPE: "h2",
+        FARCRY_DSN_CLASS: "org.h2.Driver",
+        FARCRY_DSN_CONNECTIONSTRING: "jdbc:h2:chelsea/chelsea;MODE=MySQL",
         FARCRY_DSN_USERNAME: "vagrant",
         FARCRY_DSN_PASSWORD: "vagrant"
       }
