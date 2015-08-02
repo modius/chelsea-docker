@@ -55,7 +55,7 @@ Split into two parts: the **dockerhost** virtual machine running Docker 1.7 and 
 The `code` directory is set up as a **git submodule** pointing to the codebase for the app. Change this to reflect the code base you want to develop with.  Anything under the `code` directory is sync'd into the container via a volume to allow development.
 
 `./config`
-General configuration. Create a subdirectory for each service, or variation of container. Development specific configuraiton can be nominated in the `Vagrantfile`.
+General configuration. Create a subdirectory for each service, or variation of container. Development specific configuration can be nominated in the `Vagrantfile`.
 
 `./logs`
 The app container will automatically write logs into this directory tree to make development easier. Logs are transient and should never be committed to the repo.  The logs are mapped via the volumes nominated in the `Vagrantfile`.
