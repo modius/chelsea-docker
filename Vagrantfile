@@ -75,7 +75,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Launch solo-dev containers; using embedded H2
   # - vagrant up chelseah2
   ##################################################
-  config.vm.define "chelseah2", autostart: true do |solo|
+  config.vm.define "chelseah2", autostart: false do |solo|
     solo.vm.provider "docker" do |docker|
       docker.name = "chelseah2"
       docker.build_dir = "."
