@@ -14,7 +14,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Map Docker VM service ports to VM host
     dh.vm.network :forwarded_port, :host => 8009, :guest => 8009
-    dh.vm.network :forwarded_port, :host => 3306, :guest => 3306
+    # forward this port if you need access to mysql container
+    # dh.vm.network :forwarded_port, :host => 3306, :guest => 3306
 
     dh.vm.provider "virtualbox" do |virtualbox|
       virtualbox.memory = 2048
@@ -47,11 +48,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     solo.vm.provider "docker" do |docker|
       docker.name = "chelsea"
       docker.build_dir = "."
+      docker.link("mysql:mysql")
       docker.env = {
         FARCRY_DSN: "chelsea",
         FARCRY_DBTYPE: "mysql",
         FARCRY_DSN_CLASS: "org.gjt.mm.mysql.Driver",
-        FARCRY_DSN_CONNECTIONSTRING: "jdbc:mysql://192.168.33.9:3306/chelsea?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useLegacyDatetimeCode=true",
+        FARCRY_DSN_CONNECTIONSTRING: "jdbc:mysql://mysql:3306/chelsea?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useLegacyDatetimeCode=true",
         FARCRY_DSN_USERNAME: "vagrant",
         FARCRY_DSN_PASSWORD: "vagrant"
       }
