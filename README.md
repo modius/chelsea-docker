@@ -10,9 +10,18 @@ Dependencies: Virtualbox, `git v1.6.5`, `vagrant v1.7.3`
 ```
 git clone --recursive git@github.com:modius/chelsea-docker.git
 cd chelsea-docker
-vagrant up
+vagrant up dockerhost
+vagrant up mysql chelsea --no-parallel
 open http://192.168.33.9:8009/
 ```
+
+Or you can reach the site on:
+
+```
+open http://localhost:7009/
+```
+
+_Note, the first time you run `vagrant up` the environment will need to download the dockerhost box, and then the images for both mysql and tomcat/lucee. This may take some time depending on your internet connection.  Subsequent changes and builds will be much faster using a local cache of these images._
 
 ## Anatomy of the Project
 
@@ -28,7 +37,6 @@ The project structure provides an environment for local Docker development, and 
 │       └── chelsea
 ├── config
 │   ├── lucee
-│   │   ├── dev-lucee-web.xml.cfm
 │   │   └── lucee-web.xml.cfm
 │   └── nginx
 │       ├── conf.d

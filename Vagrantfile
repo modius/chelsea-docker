@@ -8,12 +8,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Start Docker host
   ##################################################
   config.vm.define "dockerhost", autostart: false do |dh|
+    # Run with a more modern boot2docker variant than default for vagrant
+    # https://atlas.hashicorp.com/dduportal/boxes/boot2docker
     dh.vm.box = "dduportal/boot2docker"
     dh.vm.network "private_network", ip: WORKBENCH_IP
     dh.vm.synced_folder ".", "/vagrant", type: "virtualbox"
 
     # Map Docker VM service ports to VM host
-    dh.vm.network :forwarded_port, :host => 8009, :guest => 8009
+    dh.vm.network :forwarded_port, :host => 7009, :guest => 8009
     # forward this port if you need access to mysql container
     # dh.vm.network :forwarded_port, :host => 3306, :guest => 3306
 
