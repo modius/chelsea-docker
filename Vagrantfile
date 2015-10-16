@@ -20,11 +20,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
   ##################################################
   # Launch solo-dev containers; using local mysql
-  # - vagrant up mysql chelsea --no-parallel
+  # - vagrant up --no-parallel
   ##################################################
   config.vm.define "mysql", autostart: true do |mysql|
     mysql.vm.provider "docker" do |docker|
-      docker.name = "mysql"
+      docker.name = "mysql-" + PROJECT_NAME
       # Notes; https://registry.hub.docker.com/u/tutum/mysql/
       docker.image = "tutum/mysql:5.6"
       docker.env = {
@@ -32,7 +32,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         MYSQL_PASS: "vagrant",
         STARTUP_SQL: "/vagrant/config/mysql/chelsea.sql"
       }
-      docker.ports = %w(3306:3306)
+      #docker.ports = ["3" + PROJECT_PORT + ":3306"]
+      docker.expose = %w(3306)
       docker.vagrant_machine = WORKBENCH_HOST
       docker.vagrant_vagrantfile = WORKBENCH_VAGRANTFILE
     end
@@ -42,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     solo.vm.provider "docker" do |docker|
       docker.name = PROJECT_PORT + "-" + PROJECT_NAME
       docker.build_dir = "."
-      docker.link("mysql:mysql")
+      docker.link("mysql-" + PROJECT_NAME+ ":mysql")
       docker.env = {
         VIRTUAL_HOST: "chelsea.dev",
         FARCRY_DSN: "chelsea",
