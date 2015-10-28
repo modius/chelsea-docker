@@ -1,12 +1,9 @@
 ##################################################
 # Workbench Settings
 ##################################################
-VAGRANTFILE_API_VERSION = "2"
 Vagrant.require_version ">= 1.7.3"
 
-PROJECT_NAME = "chelsea"
-PROJECT_ENV = "chelsea-docker"
-PROJECT_PORT = "8009" # workbench
+PROJECT_ENV = File.basename(Dir.getwd)
 
 if File.exist?('../Vagrantfile')
   WORKBENCH_HOST = "workbench"
@@ -16,7 +13,7 @@ else
   WORKBENCH_VAGRANTFILE = __FILE__
 end
 
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+Vagrant.configure("2") do |config|
   
   ##################################################
   # Launch solo-dev containers; using local mysql
@@ -24,7 +21,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ##################################################
   config.vm.define "mysql", autostart: true do |mysql|
     mysql.vm.provider "docker" do |docker|
-      docker.name = "mysql-" + PROJECT_NAME
+      docker.name = "mysql-" + PROJECT_ENV
       # Notes; https://registry.hub.docker.com/u/tutum/mysql/
       docker.image = "tutum/mysql:5.6"
       docker.env = {
@@ -32,20 +29,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         MYSQL_PASS: "vagrant",
         STARTUP_SQL: "/vagrant/config/mysql/chelsea.sql"
       }
-      #docker.ports = ["3" + PROJECT_PORT + ":3306"]
       docker.expose = %w(3306)
       docker.vagrant_machine = WORKBENCH_HOST
       docker.vagrant_vagrantfile = WORKBENCH_VAGRANTFILE
+      docker.force_host_vm = true
     end
+    puts '############################################################'
+    puts '# MYSQL-' + PROJECT_ENV.upcase
+    puts '#  - tutum/mysql:5.6'
+    puts '############################################################'
   end
 
   config.vm.define "chelsea", autostart: true do |solo|
     solo.vm.provider "docker" do |docker|
-      docker.name = PROJECT_PORT + "-" + PROJECT_NAME
+      docker.name = PROJECT_ENV
       docker.build_dir = "."
-      docker.link("mysql-" + PROJECT_NAME+ ":mysql")
+      docker.link("mysql-" + PROJECT_ENV+ ":mysql")
       docker.env = {
-        VIRTUAL_HOST: "chelsea.dev",
+        VIRTUAL_HOST: PROJECT_ENV + ".*, chelsea.*",
         FARCRY_DSN: "chelsea",
         FARCRY_DBTYPE: "mysql",
         FARCRY_DSN_CLASS: "org.gjt.mm.mysql.Driver",
@@ -62,10 +63,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         "/vagrant/" + PROJECT_ENV + "/logs/supervisor:/var/log/supervisor",
         "/vagrant/" + PROJECT_ENV + "/logs/tomcat:/usr/local/tomcat/logs"
         ]
-      docker.ports = [PROJECT_PORT + ":80"]
       docker.vagrant_machine = WORKBENCH_HOST
       docker.vagrant_vagrantfile = WORKBENCH_VAGRANTFILE
+      docker.force_host_vm = true
     end
+    puts '############################################################'
+    puts '# ' + PROJECT_ENV.upcase
+    puts '#  - hosted at: http://' + PROJECT_ENV + '.dev'
+    puts '#  - using local mySQL database (Workbench)'
+    puts '############################################################'
   end
 
   ##################################################
@@ -74,10 +80,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ##################################################
   config.vm.define "chelseah2", autostart: false do |solo|
     solo.vm.provider "docker" do |docker|
-      docker.name = PROJECT_PORT + "-" + PROJECT_NAME + "-h2"
+      docker.name = PROJECT_ENV + "-h2"
       docker.build_dir = "."
       docker.env = {
-        VIRTUAL_HOST: "chelsea.dev",
+        VIRTUAL_HOST: PROJECT_ENV + ".*, chelsea.*",
         FARCRY_DSN: "chelsea",
         FARCRY_DBTYPE: "h2",
         FARCRY_DSN_CLASS: "org.h2.Driver",
@@ -94,10 +100,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         "/vagrant/" + PROJECT_ENV + "/logs/supervisor:/var/log/supervisor",
         "/vagrant/" + PROJECT_ENV + "/logs/tomcat:/usr/local/tomcat/logs"
         ]
-      docker.ports = [PROJECT_PORT + ":80"]
       docker.vagrant_machine = WORKBENCH_HOST
       docker.vagrant_vagrantfile = WORKBENCH_VAGRANTFILE
+      docker.force_host_vm = true
     end
+    puts '############################################################'
+    puts '# ' + PROJECT_ENV.upcase
+    puts '#  - hosted at: http://' + PROJECT_ENV + '.dev'
+    puts '#  - using local H2 database (Workbench)'
+    puts '############################################################'
   end
 
   ##################################################
@@ -113,6 +124,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.memory = 2048
       vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
     end
+
+    puts '############################################################'
+    puts '#  WARNING: BACKUP HOST... http://192.168.56.100'
+    puts '# '
+    puts '#  Could not find Workbench Boot2Docker. Consider Setting'
+    puts '#  up the complete development environment:'
+    puts '#    https://github.com/Daemonite/workbench'
+    puts '############################################################'
   end
 
 # /config
