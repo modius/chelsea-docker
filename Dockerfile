@@ -1,4 +1,4 @@
-FROM lucee/lucee4-nginx:latest
+FROM lucee/lucee5-nginx:latest
 
 MAINTAINER Geoff Bowers <modius@daemon.com.au>
 
